@@ -1,5 +1,6 @@
 package com.example.ariketa_2;
 
+import android.media.metrics.EditingSession;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -14,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import java.text.DecimalFormat;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        findViews();
         setUpButtonClickListener();
 
     }
@@ -56,19 +60,42 @@ public class MainActivity extends AppCompatActivity {
         calculateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                calculateBmi();
+                double bmiResult= calculateBmi();
+
+                String ageText= ageEditText.getText().toString();
+                int age = Integer.parseInt(ageText);
+
+                if(age>=18){
+                    displayResult(bmiResult);
+                }else{
+                    displayGuidance(bmiResult);
+                }
 
 
             }
         });
     }
-    private void calculateBmi(){
-        String ageText= ageEditText.getText().toString();
+
+    private void displayGuidance(double bmi) {
+        DecimalFormat myDecimalFormatter = new DecimalFormat("0.00");
+        String bmiTextResult =myDecimalFormatter.format(bmi);
+        String fullResultString;
+
+        if(maleButton.isChecked()){
+            fullResultString = bmiTextResult + " If you are under 18 consult with your doctor";
+        } else if(femaleButton.isChecked()){
+            fullResultString=bmiTextResult+" If you are under 18 consult with your doctor";
+        }else{
+            fullResultString= bmiTextResult +"If you are under 18 consult with your doctor";
+        }
+        resulText.setText(fullResultString);
+    }
+
+    private double calculateBmi(){
         String feetText= feetEditText.getText().toString();
         String inchesText= inchesEditText.getText().toString();
         String weightText= weightEditText.getText().toString();
 
-        int age=Integer.parseInt(ageText);
         int feet=Integer.parseInt(feetText);
         int inches=Integer.parseInt(inchesText);
         int weight=Integer.parseInt(weightText);
@@ -77,10 +104,20 @@ public class MainActivity extends AppCompatActivity {
 
         double heightInMeter=totalInches*0.0254;
 
-        double bmi=weight/(heightInMeter* heightInMeter);
-
-        String bmiTextResult= String.valueOf(bmi);
-        resulText.setText(bmiTextResult);
+        return weight/(heightInMeter* heightInMeter);
+    }
+    private void  displayResult(double bmi){
+        DecimalFormat myDecimalFormatter = new DecimalFormat("0.00");
+        String bmiTextResult =myDecimalFormatter.format(bmi);
+        String fullResultString;
+        if(bmi <18.5){
+            fullResultString=bmiTextResult+" You are underweight";
+        } else if(bmi>25){
+            fullResultString=bmiTextResult+ " You are overweight";
+        } else {
+            fullResultString=bmiTextResult+" You are healthy";
+        }
+        resulText.setText(fullResultString);
     }
 
 
